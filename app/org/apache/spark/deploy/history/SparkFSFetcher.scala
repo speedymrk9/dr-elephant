@@ -147,7 +147,7 @@ class SparkFSFetcher(fetcherConfData: FetcherConfigurationData) extends Elephant
               null
             }
           } else {
-            val logFilePath = new Path(logPath + "_1.snappy")
+            val logFilePath = getLogFilePath(logPath)
             if (!shouldThrottle(logFilePath)) {
               EventLoggingListener.openEventLog(logFilePath, fs)
             } else {
@@ -240,6 +240,19 @@ class SparkFSFetcher(fetcherConfData: FetcherConfigurationData) extends Elephant
   def getEventLogDir(): String = {
     confEventLogDir
   }
+  /**
+   * get the actual file name according to the different possibilitiess
+   */
+  private def getLogFilePath(logPath: Path): Path = {
+    val snappy = new Path(logPath + ".snappy")
+    if(fs.exists(snappy)){
+      snappy
+    }else if (fs.exists(logPath)){
+      logPath
+    }else{
+      new Path(logPath + "_1.snappy")
+    }
+  } 
 
 }
 
